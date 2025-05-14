@@ -1,6 +1,6 @@
 import exppress from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { boardRoutes } from './boardRoutes.js'
+import { boardRoute } from './boardRoute.js'
 
 const Router = exppress.Router()
 
@@ -8,6 +8,6 @@ Router.get('/status', (req, res) => {
   res.status(StatusCodes.OK).json({ message: 'Trello API is running' })
 })
 
-Router.use('/boards', boardRoutes)
+Router.use('/boards', boardRoute)
 
 export const API_V1 = Router
