@@ -9,6 +9,8 @@ import { API_V1 } from '~/routes/v1/index.js'
 const START_SERVER = () => {
   const app = express()
 
+  app.use(express.json())
+
   app.use('/v1', API_V1)
 
   app.get('/', async (req, res) => {
