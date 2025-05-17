@@ -2,7 +2,7 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 
-const createNew = async(req, res) => {
+const createNew = async(req, res, next) => {
   const correctCondition = Joi.object({
     title: Joi.string().required().min(3).max(50).trim().strict().message({
       'any.required': 'Title is required',
@@ -15,12 +15,8 @@ const createNew = async(req, res) => {
   })
 
   try {
-    console.log('Request Body:', req.body)
-
     await correctCondition.validateAsync(req.body, { abortEarly: false })
-
-    // next()
-    res.status(StatusCodes.CREATED).json({ message: 'Post Validation: Trello API create new Board is running' })
+    next()
   }
   catch (error) {
     console.log(error)
