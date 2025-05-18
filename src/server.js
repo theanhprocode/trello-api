@@ -4,6 +4,7 @@ import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
 import exitHook from 'async-exit-hook'
 import { env } from '~/config/environment'
 import { API_V1 } from '~/routes/v1/index.js'
+import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 
 
 const START_SERVER = () => {
@@ -12,6 +13,9 @@ const START_SERVER = () => {
   app.use(express.json())
 
   app.use('/v1', API_V1)
+
+  // middleware xử lý lỗi tập trung
+  app.use(errorHandlingMiddleware)
 
   app.get('/', async (req, res) => {
     res.end('<h1>Hello World!</h1><hr>')
