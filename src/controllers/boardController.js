@@ -1,5 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError.js'
+import { boardService } from '~/services/boardService'
 
 
 const createNew = async (req, res, next) => {
@@ -7,7 +8,8 @@ const createNew = async (req, res, next) => {
     // console.log('Request Body:', req.body)
     // res.status(StatusCodes.CREATED).json({ message: 'Post Controller: Trello API create new Board is running' })
 
-    throw new ApiError(StatusCodes.BAD_GATEWAY, 'Error: Something went wrong!')
+    const createBoard = await boardService.createNew(req.body)
+    res.status(StatusCodes.CREATED).json(createBoard)
   } catch (error) { next(error) }
 }
 
