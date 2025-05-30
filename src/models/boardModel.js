@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
+import { BOARD_TYPES } from '~/utils/constants'
 
 
 const BOARD_COLLECTION_NAME = 'boards'
@@ -9,6 +10,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   title: Joi.string().required().min(3).max(50).trim().strict(),
   slug: Joi.string().required().min(3).max(50).trim().strict(),
   description: Joi.string().required().min(3).max(255).trim().strict(),
+
+  type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
 
   columnOrderIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
@@ -26,7 +29,7 @@ const validateBeforeCreate = async (data) => {
 const createNew = async (data) => {
   try {
     const validatedData = await validateBeforeCreate(data)
-    console.log('Validated Data:', validatedData)
+    // console.log('Validated Data:', validatedData)
     const createBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validatedData)
     return createBoard
   } catch (error) {
