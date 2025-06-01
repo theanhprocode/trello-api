@@ -3,6 +3,7 @@ import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
 import { StatusCodes } from 'http-status-codes'
+import { cloneDeep } from 'lodash'
 
 
 const createNew = async (reqBody) => {
@@ -30,7 +31,17 @@ const getDetails = async (boardId) => {
     if (!board) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
     }
-    return board
+
+    // Đưa cards vào đúng column cuả nó
+    // Sử dụng cloneDeep để tránh việc thay đổi dữ liệu gốc
+    const resBoard = cloneDeep(board)
+    resBoard.columns.forEach(column => {
+      column.cards = resBoard.cards.filter(card => card.columnId.toString() === column._id.toString())
+    })
+
+    delete resBoard.cards // Xóa trường cards khỏi kết quả trả về
+
+    return resBoard
   } catch (error) {
     throw error
   }
