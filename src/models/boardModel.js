@@ -50,6 +50,7 @@ const findOneById = async (id) => {
 const getDetails = async (id) => {
   try {
     // return await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
+
     // query to get board details with columns and cards
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       { $match: {
