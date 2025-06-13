@@ -26,8 +26,13 @@ const createNew = async (data) => {
   try {
     const validatedData = await validateBeforeCreate(data)
     // console.log('Validated Data:', validatedData)
-    const createBoard = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(validatedData)
-    return createBoard
+    const newCardToAdd = {
+      ...validatedData,
+      boardId: new ObjectId(validatedData.boardId),
+      columnId: new ObjectId(validatedData.columnId)
+    }
+    const createCard = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(newCardToAdd)
+    return createCard
   } catch (error) {
     throw new Error(error)
   }

@@ -4,6 +4,7 @@ import { slugify } from '~/utils/formatters'
 import { cardModel } from '~/models/cardModel'
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
+import { columnModel } from '~/models/columnModel'
 
 
 const createNew = async (reqBody) => {
@@ -16,7 +17,9 @@ const createNew = async (reqBody) => {
     // console.log('createCard', createdCard)
     const getNewCard = await cardModel.findOneById(createdCard.insertedId)
 
-    //
+    if (getNewCard) {
+      await columnModel.pushCardOrderIds(getNewCard)
+    }
 
     return getNewCard
   } catch (error) {
