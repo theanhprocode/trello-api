@@ -50,6 +50,7 @@ const findOneById = async (id) => {
 const getDetails = async (id) => {
   try {
     // return await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
+
     // query to get board details with columns and cards
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       { $match: {
@@ -77,10 +78,28 @@ const getDetails = async (id) => {
   }
 }
 
+
+// push 1 giá trị columnis vào trong mảng columnOrderIds
+const pushColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { returnDocument: 'after' }
+    )
+
+    return result.value
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  pushColumnOrderIds
 }
