@@ -20,4 +20,14 @@ const update = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
-export const columnController = { createNew, update }
+const deleteItem = async (req, res, next) => {
+  try {
+    // console.log('req.params: ', req.params)
+    const columnId = req.params.id
+    const updatedColumn = await columnService.deleteItem(columnId)
+
+    res.status(StatusCodes.OK).json(updatedColumn)
+  } catch (error) { next(error) }
+}
+
+export const columnController = { createNew, update, deleteItem }
