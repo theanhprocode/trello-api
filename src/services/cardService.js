@@ -1,9 +1,9 @@
 /* eslint-disable no-useless-catch */
-import ApiError from '~/utils/ApiError'
-import { slugify } from '~/utils/formatters'
+// import ApiError from '~/utils/ApiError'
+// import { slugify } from '~/utils/formatters'
 import { cardModel } from '~/models/cardModel'
-import { StatusCodes } from 'http-status-codes'
-import { cloneDeep } from 'lodash'
+// import { StatusCodes } from 'http-status-codes'
+// import { cloneDeep } from 'lodash'
 import { columnModel } from '~/models/columnModel'
 
 
@@ -27,7 +27,18 @@ const createNew = async (reqBody) => {
   }
 }
 
+const deleteCardItem = async (cardId) => {
+  try {
+    // xoá card trong column đó
+    await cardModel.deleteCardOne(cardId)
+
+    return { deleteResult: 'Card đã xoá thành công!' }
+  } catch (error) {
+    throw error
+  }
+}
 
 export const cardService = {
-  createNew
+  createNew,
+  deleteCardItem
 }
