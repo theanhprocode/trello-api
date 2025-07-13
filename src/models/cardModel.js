@@ -76,7 +76,7 @@ const update = async (cardId, updateData) => {
 const deleteCardsInColumn = async (columnId) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteMany({ columnId: new ObjectId(columnId) })
-    console.log('🚀 ~ deleteCardsInColumn ~ result:', result)
+    // console.log('🚀 ~ deleteCardsInColumn ~ result:', result)
     return result
   } catch (error) {
 
@@ -86,10 +86,10 @@ const deleteCardsInColumn = async (columnId) => {
 
 const deleteCardOne = async (cardId) => {
   try {
-    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteOne({ 
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteOne({
       _id: new ObjectId(cardId)
     })
-    console.log('🚀 ~ result ~ result:', result)
+    // console.log('🚀 ~ result ~ result:', result)
     return result
   } catch (error) {
     throw new Error(error)
