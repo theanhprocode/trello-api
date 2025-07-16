@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-catch */
-// import ApiError from '~/utils/ApiError'
+import ApiError from '~/utils/ApiError'
 // import { slugify } from '~/utils/formatters'
 import { cardModel } from '~/models/cardModel'
-// import { StatusCodes } from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 // import { cloneDeep } from 'lodash'
 import { columnModel } from '~/models/columnModel'
 
@@ -38,7 +38,22 @@ const deleteCardItem = async (cardId) => {
   }
 }
 
+const updateCardTitle = async (cardId, newTitle) => {
+  try {
+    const updatedCard = await cardModel.updateTitle(cardId, newTitle)
+
+    if (!updatedCard) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found!')
+    }
+
+    return updatedCard
+  } catch (error) {
+    throw error
+  }
+}
+
 export const cardService = {
   createNew,
-  deleteCardItem
+  deleteCardItem,
+  updateCardTitle
 }

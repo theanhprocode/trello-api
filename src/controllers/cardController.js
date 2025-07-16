@@ -19,5 +19,18 @@ const deleteCardItem = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const updateCardTitle = async (req, res, next) => {
+  try {
+    const cardId = req.params.id
+    const { title } = req.body
 
-export const cardController = { createNew, deleteCardItem }
+    const updatedCard = await cardService.updateCardTitle(cardId, title)
+
+    res.status(StatusCodes.OK).json(updatedCard)
+  } catch (error) {
+    next(error)
+  }
+}
+
+
+export const cardController = { createNew, deleteCardItem, updateCardTitle }
