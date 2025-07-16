@@ -8,6 +8,7 @@ Router.route('/')
   .post(cardValidation.createNew, cardController.createNew)
 
 Router.route('/:id')
+  .put(cardValidation.updateCardTitle, cardController.updateCardTitle)
   .delete(cardValidation.deleteCardItem, cardController.deleteCardItem)
 
 

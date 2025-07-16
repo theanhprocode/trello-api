@@ -39,4 +39,17 @@ const deleteCardItem = async(req, res, next) => {
   }
 }
 
-export const cardValidation = { createNew, deleteCardItem }
+const updateCardTitle = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    title: Joi.string().required().min(3).max(50).trim().strict()
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body)
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
+
+export const cardValidation = { createNew, deleteCardItem, updateCardTitle }
