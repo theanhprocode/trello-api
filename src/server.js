@@ -18,6 +18,11 @@ const START_SERVER = () => {
 
   app.use('/v1', API_V1)
 
+  // ping server
+  app.get('/ping', (req, res) => {
+    res.status(200).send('pong')
+  })
+
   // middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
@@ -37,10 +42,10 @@ const START_SERVER = () => {
     })
   }
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Hello ${env.AUTHOR}, I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
-  })
+  // app.listen(env.APP_PORT, env.APP_HOST, () => {
+  //   // eslint-disable-next-line no-console
+  //   console.log(`Hello ${env.AUTHOR}, I am running at http://${env.APP_HOST}:${env.APP_PORT}/`)
+  // })
 
   exitHook(() => {
     CLOSE_DB()
