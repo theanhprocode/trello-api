@@ -23,12 +23,12 @@ const START_SERVER = () => {
     res.status(200).send('pong')
   })
 
-  // middleware xử lý lỗi tập trung
-  app.use(errorHandlingMiddleware)
-
   app.get('/', async (req, res) => {
     res.end('<h1>Hello World!</h1><hr>')
   })
+
+  // middleware xử lý lỗi tập trung
+  app.use(errorHandlingMiddleware)
 
   if (env.BUILD_MODE === 'production') {
     app.listen(process.env.PORT, () => {
