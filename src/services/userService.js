@@ -5,6 +5,8 @@ import { StatusCodes } from 'http-status-codes'
 import bcryptjs from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { pickUser } from '~/utils/formatters'
+import { WEBSITE_DOMAIN } from '~/utils/constants'
+import { ResendProvider } from '~/providers/Resendrovider'
 
 
 const createNew = async (reqBody) => {
@@ -31,6 +33,15 @@ const createNew = async (reqBody) => {
     const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
     // Gửi email cho người dùng xác thực
+    const verificationlink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const customSubject = 'Trello: Please verify your email'
+    const htmlContent = `
+      <h3>Here is your verification link:</h3>
+      <h3>${verificationlink}</h3>
+      <h3>Thank you for registering!</h3>
+    `
+    // Gọi tới provider gửi email
+    await await ResendProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
 
     // Trả về kết quả cho controller
     return pickUser(getNewUser)
