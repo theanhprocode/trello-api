@@ -13,6 +13,12 @@ import cookieParser from 'cookie-parser'
 const START_SERVER = () => {
   const app = express()
 
+  // fix from disk cache của expressJs
+  app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store')
+    next()
+  })
+
   // Cấu hình cookieParser
   app.use(cookieParser())
 

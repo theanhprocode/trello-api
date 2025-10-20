@@ -15,15 +15,15 @@ const isAuthorized = async (req, res, next) => {
   try {
     // kiểm tra token có hợp lệ hay không
     const accessTokenDecoded = await JwtProvider.verifyToken(clientAccessToken, env.ACCESS_TOKEN_SECRET_KEY)
-    console.log('accessTokenDecoded: ', accessTokenDecoded)
+    // console.log('accessTokenDecoded: ', accessTokenDecoded)
 
     // Gán thông tin giải mã được vào req để các middleware hoặc controller ở phía sau có thể sử dụng
     req.jwtDecoded = accessTokenDecoded
     next() // Token hợp lệ, cho phép đi tiếp
   } catch (error) {
-    // nếu accessToken bị hết hạn thì trả về mã lỗi 401
+    // nếu accessToken bị hết hạn thì trả về mã lỗi 410
     if (error?.message?.includes('jwt expired')) {
-      next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized (need to refresh token)'))
+      next(new ApiError(StatusCodes.GONE, 'need to refresh token'))
       return
     }
 

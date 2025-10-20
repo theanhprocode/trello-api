@@ -87,16 +87,47 @@ const login = async (reqBody) => {
     const userInfo = { _id: existUser._id, email: existUser.email }
 
     // tạo accessToken và refreshToken
-    const accessToken = await JwtProvider.generateToken(userInfo, env.ACCESS_TOKEN_SECRET_KEY, env.ACCESS_TOKEN_LIFE)
-    const refreshToken = await JwtProvider.generateToken(userInfo, env.REFRESH_TOKEN_SECRET_KEY, env.REFRESH_TOKEN_LIFE)
+    const accessToken = await JwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_SECRET_KEY,
+      // 5
+      env.ACCESS_TOKEN_LIFE
+    )
+    const refreshToken = await JwtProvider.generateToken(
+      userInfo,
+      env.REFRESH_TOKEN_SECRET_KEY,
+      env.REFRESH_TOKEN_LIFE
+    )
 
     return { accessToken, refreshToken, ...pickUser(existUser) }
   } catch (error) { throw error }
+}
+
+const refreshToken = async (clientRefreshToken) => {
+  try {
+    // verify cái refresh token xem có hợp lệ không
+    const refreshTokenDecoded = await JwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_SECRET_KEY)
+
+    // đã lưu những thông tin unique và cố định của user trong token rồi nên không cần truy vấn db
+    const userInfo = { _id: refreshTokenDecoded._id, email: refreshTokenDecoded.email }
+
+    // tạo accessToken mới
+    const accessToken = await JwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_SECRET_KEY,
+      env.ACCESS_TOKEN_LIFE
+    )
+
+    return { accessToken }
+  } catch (error) {
+    throw error
+  }
 }
 
 
 export const userService = {
   createNew,
   verifyAccount,
-  login
+  login,
+  refreshToken
 }
