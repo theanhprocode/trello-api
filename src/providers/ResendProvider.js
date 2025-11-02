@@ -13,7 +13,7 @@ const sendEmail = async (recipientEmail, customSubject, htmlContent) => {
 
     // Create Resend instance inside function
     const resendInstance = new Resend(env.RESEND_API_KEY)
-    
+
     const data = await resendInstance.emails.send({
       from: env.ADMIN_RESEND_EMAIL || 'onboarding@resend.dev',
       to: recipientEmail,
