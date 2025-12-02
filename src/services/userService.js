@@ -9,6 +9,7 @@ import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { ResendProvider } from '~/providers/ResendProvider'
 import { env } from '~/config/environment'
 import { JwtProvider } from '~/providers/JwtProvider'
+import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
 
 
 const createNew = async (reqBody) => {
@@ -126,7 +127,7 @@ const refreshToken = async (clientRefreshToken) => {
   }
 }
 
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     // query user & check
     const existUser = await userModel.findOneById(userId)
@@ -145,6 +146,15 @@ const update = async (userId, reqBody) => {
       // nếu như current_password đúng thì mới được phép thay đổi password
       updatedUser = await userModel.update(existUser._id, {
         password: bcryptjs.hashSync(reqBody.new_password, 10)
+      })
+    } else if (userAvatarFile) {
+      // trường hợp upload file lên cloudinary
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'user')
+      console.log('Cloudinary Upload Result:', uploadResult)
+
+      // Lưu url trả về từ cloudinary vào database
+      updatedUser = await userModel.update(existUser._id, {
+        avatar: uploadResult.secure_url
       })
     } else {
       //  trường hợp update thông tin chung (không phải password)
