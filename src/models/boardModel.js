@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb'
 import { BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from '~/models/columnModel.js'
 import { cardModel } from '~/models/cardModel.js'
+import { pagingSkipValue } from '~/utils/algorithms.js'
 
 
 const BOARD_COLLECTION_NAME = 'boards'
@@ -16,6 +17,16 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   type: Joi.string().valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE).required(),
 
   columnOrderIds: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
+
+  // Những admin của board
+  ownerIds: Joi.array().items(
+    Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+  ).default([]),
+
+  // Những thành viên của board
+  memberIds: Joi.array().items(
     Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
   ).default([]),
 
@@ -140,6 +151,52 @@ const update = async (boardId, updateData) => {
   }
 }
 
+const getBoards = async (userId, page, itemPerPage) => {
+  try {
+    const queryCondition = [
+      // Điều kiện 1: Boards chưa bị xoá
+      { _destroy: false },
+
+      // Điều kiện 2: userId đang thực hiện yêu cầu có trong mảng memberIds hoặc ownerId, sừ dụng $all của MongoDB
+      { $or: [
+        { memberIds: { $all: [new ObjectId(userId)] } },
+        { ownerIds: { $all: [new ObjectId(userId)] } }
+      ] }
+    ]
+
+    const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
+      [
+        { $match: { $and: queryCondition } },
+        { $sort: { title: 1 } }, // Sắp xếp theo title tăng dần
+        // Xử lý nhiều luồng trong 1 truy vấn
+        { $facet: {
+          // Luồng 1: Query Board
+          'queryBoards': [
+            { $skip: pagingSkipValue(page, itemPerPage) }, // Bỏ qua số bản ghi tương ứng với các trang trước
+            { $limit: itemPerPage } // Giới hạn số lượng bản ghi trả về trên 1 trang
+          ],
+
+          // Luồng 2: Query đếm tổng tất cả các board trong database trả về biến countedAllBoards
+          'queryBoardTotal': [{ $count: 'countedAllBoards' }]
+        } }
+      ],
+      // collation để hỗ trợ sort không phân biệt hoa thường
+      { collation: { locale: 'en' } }
+    ).toArray()
+    console.log('Aggregate Query Result:', query)
+
+    const res = query[0]
+
+    return {
+      boards: res.queryBoards || [],
+      totalBoards: res.queryBoardTotal[0]?.countedAllBoards || 0
+    }
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -148,5 +205,6 @@ export const boardModel = {
   getDetails,
   pushColumnOrderIds,
   update,
-  pullColumnOrderIds
+  pullColumnOrderIds,
+  getBoards
 }
