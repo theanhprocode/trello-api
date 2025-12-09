@@ -6,6 +6,7 @@ import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
+import { DEFAULT_PAGE, DEFAULT_ITEM_PER_PAGE } from '~/utils/constants'
 
 
 const createNew = async (reqBody) => {
@@ -85,9 +86,24 @@ const moveCardToDifferentColumn = async (reqBody) => {
   } catch (error) { throw error }
 }
 
+const getBoards = async (userId, page, itemPerPage) => {
+  try {
+    // nếu không tồn tại page và itemPerPage từ phía fe thì gán giá trị mặc định
+    if (!page) page = DEFAULT_PAGE
+    if (!itemPerPage) itemPerPage = DEFAULT_ITEM_PER_PAGE
+
+    const results = await boardModel.getBoards(userId, parseInt(page, 10), parseInt(itemPerPage, 10))
+
+    return results
+  } catch (error) {
+    throw error
+  }
+}
+
 export const boardService = {
   createNew,
   getDetails,
   update,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
+  getBoards
 }
