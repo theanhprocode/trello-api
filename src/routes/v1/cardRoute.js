@@ -10,8 +10,7 @@ Router.route('/')
   .post(authMiddleware.isAuthorized, cardValidation.createNew, cardController.createNew)
 
 Router.route('/:id')
-  .put(authMiddleware.isAuthorized, cardValidation.updateCardTitle, cardController.updateCardTitle)
-  .delete(authMiddleware.isAuthorized, cardValidation.deleteCardItem, cardController.deleteCardItem)
+  .put(authMiddleware.isAuthorized, cardValidation.update, cardController.update)
 
 
 export const cardRoute = Router
