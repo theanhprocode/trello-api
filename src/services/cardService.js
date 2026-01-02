@@ -5,6 +5,7 @@ import { cardModel } from '~/models/cardModel'
 // import { StatusCodes } from 'http-status-codes'
 // import { cloneDeep } from 'lodash'
 import { columnModel } from '~/models/columnModel'
+import { CloudinaryProvider } from '~/providers/cloudinaryProvider'
 
 
 const createNew = async (reqBody) => {
@@ -38,14 +39,24 @@ const deleteCardItem = async (cardId) => {
   }
 }
 
-const update = async (cardId, reqBody) => {
+const update = async (cardId, reqBody, cardCoverFile) => {
   try {
     const updatedData = {
       ...reqBody,
       updatedAt: Date.now()
     }
 
-    const updatedCard = await cardModel.update(cardId, updatedData)
+    let updatedCard = {}
+
+    if (cardCoverFile) {
+      const uploadResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'card-covers')
+      // Lưu url trả về từ cloudinary vào database
+      updatedCard = await cardModel.update(cardId, { cover: uploadResult.secure_url })
+    } else {
+      // các trường hợp update chung
+      updatedCard = await cardModel.update(cardId, updatedData)
+    }
+
     return updatedCard
   } catch (error) {
     throw error
