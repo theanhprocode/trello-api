@@ -193,7 +193,7 @@ const getBoards = async (userId, page, itemPerPage) => {
       // collation để hỗ trợ sort không phân biệt hoa thường
       { collation: { locale: 'en' } }
     ).toArray()
-    console.log('Aggregate Query Result:', query)
+    // console.log('Aggregate Query Result:', query)
 
     const res = query[0]
 
