@@ -39,7 +39,7 @@ const deleteCardItem = async (cardId) => {
   }
 }
 
-const update = async (cardId, reqBody, cardCoverFile) => {
+const update = async (cardId, reqBody, cardCoverFile, userInfo) => {
   try {
     const updatedData = {
       ...reqBody,
@@ -52,6 +52,15 @@ const update = async (cardId, reqBody, cardCoverFile) => {
       const uploadResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'card-covers')
       // Lưu url trả về từ cloudinary vào database
       updatedCard = await cardModel.update(cardId, { cover: uploadResult.secure_url })
+    } else if (updatedData.commentToAdd) {
+      // Trường hợp thêm comment
+      const commentData = {
+        ...updatedData.commentToAdd,
+        commentedAt: Date.now(),
+        userId: userInfo.userId,
+        userEmail: userInfo.email
+      }
+      updatedCard = await cardModel.unshiftNewComment(cardId, commentData)
     } else {
       // các trường hợp update chung
       updatedCard = await cardModel.update(cardId, updatedData)
