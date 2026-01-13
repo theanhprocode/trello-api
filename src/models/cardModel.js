@@ -110,6 +110,19 @@ const deleteCardOne = async (cardId) => {
   }
 }
 
+const unshiftNewComment = async (cardId, commentData) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(cardId) },
+      { $push: { comments: { $each: [commentData], $position: 0 } } },
+      { returnDocument: 'after' } //trả về kết qủa mới sau khi cập nhật
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 // const updateTitle = async (cardId, newTitle) => {
 //   try {
 //     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
@@ -135,5 +148,6 @@ export const cardModel = {
   findOneById,
   update,
   deleteCardsInColumn,
-  deleteCardOne
+  deleteCardOne,
+  unshiftNewComment
 }
