@@ -5,6 +5,9 @@ import ApiError from '~/utils/ApiError'
 
 export const corsOptions = {
   origin: function (origin, callback) {
+    if (!origin) {
+      return callback(null, true)
+    }
     // nếu môi trường là dev thì cho phép tất cả
     if (env.BUILD_MODE === 'dev') {
       return callback(null, true)
