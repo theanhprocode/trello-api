@@ -47,7 +47,18 @@ const createNewBoardInvitation = async (reqBody, inviterId) => {
   } catch (error) { throw error }
 }
 
+const getInvitations = async (userId) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const getInvitations = await invitationModel.findByUser(userId)
+    console.log('getInvitations: ', getInvitations)
+
+    return getInvitations
+  } catch (error) { throw error }
+}
+
 export const invitationService = {
-  createNewBoardInvitation
+  createNewBoardInvitation,
+  getInvitations
 }
 

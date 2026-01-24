@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb.js'
 import { INVITATION_TYPE, BOARD_INVITATION_STATUS } from '~/utils/constants'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { userModel } from '~/models/userModel'
+import { boardModel } from '~/models/boardModel.js'
 
 const INVITATION_COLLECTION_NAME = 'invitations'
 const INVITATION_COLLECTION_SCHEMA = Joi.object({
@@ -83,10 +85,50 @@ const update = async (invitationId, updateData) => {
   } catch (error) { throw new Error(error) }
 }
 
+// Lấy tất cả lời mời dành cho user
+const findByUser = async (userId) => {
+  try {
+    const queryCondition = [
+      { inviteeId: new ObjectId(userId) }, //Tìm theo inviteeId
+      { _destroy: false }
+    ]
+
+    const results = await GET_DB().collection(INVITATION_COLLECTION_NAME).aggregate([
+      { $match: { $and: queryCondition } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'inviterId', // Người gửi lời mời
+        foreignField: '_id',
+        as: 'inviter',
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'inviteeId', // Người nhận lời mời
+        foreignField: '_id',
+        as: 'invitee',
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      } },
+      { $lookup: {
+        from: boardModel.BOARD_COLLECTION_NAME,
+        localField: 'boardInvitation.boardId', // Thông tin của board được mời
+        foreignField: '_id',
+        as: 'board'
+      } }
+    ]).toArray()
+
+    return results
+
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const invitationModel = {
   INVITATION_COLLECTION_NAME,
   INVITATION_COLLECTION_SCHEMA,
   createNewBoardInvitation,
   findOneById,
-  update
+  update,
+  findByUser
 }
