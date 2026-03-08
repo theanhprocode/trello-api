@@ -8,6 +8,9 @@ import { env } from '~/config/environment'
 import { API_V1 } from '~/routes/v1/index.js'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import cookieParser from 'cookie-parser'
+// Xử lý socket.io
+import socketIo from 'socket.io'
+import http from 'http'
 
 
 const START_SERVER = () => {
@@ -40,13 +43,24 @@ const START_SERVER = () => {
   // middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
+  // Tạo server mới để tích hợp socket.io
+  const server = http.createServer(app)
+  // Khởi tạo bien socket.io với server và cors
+  const io = new socketIo.Server(server, { cors: corsOptions })
+  // Lắng nghe kết nối từ client
+  io.on('connection', (socket) => {
+    socket.on('FE_USER_INVITED_TO_BOARD', (invitation) => {
+      socket.broadcast.emit('BE_USER_INVITED_TO_BOARD', invitation)
+    })
+  })
+
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
     // eslint-disable-next-line no-console
       console.log(`Production: Hello ${env.AUTHOR}, I am running at port: ${process.env.PORT}`)
     })
   } else {
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
     // eslint-disable-next-line no-console
       console.log(`Hello ${env.AUTHOR}, I am running at http://${env.LOCAL_DEV_APP_HOST}:${env.LOCAL_DEV_APP_PORT}/`)
     })

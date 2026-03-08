@@ -28,26 +28,33 @@ const createNew = async (reqBody) => {
       password: bcryptjs.hashSync(reqBody.password, 8),
       userName: nameFromEmail,
       displayName: nameFromEmail,
-      verifyToken: uuidv4() // Token để xác thực email
+      // verifyToken: uuidv4() // Token để xác thực email
+      isActive: true // Tạm thời set luôn là active để khỏi phải xác thực email, sau này sẽ sửa lại thành false và bắt buộc phải xác thực email mới được active tài khoản
     }
 
     // Lưu thông tin user vào Database
     const createdUser = await userModel.createNew(newUser)
-    const getNewUser = await userModel.findOneById(createdUser.insertedId)
+    // const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
-    // Gửi email cho người dùng xác thực
-    const verificationlink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
-    const customSubject = 'Trello: Please verify your email'
-    const htmlContent = `
-      <h3>Here is your verification link:</h3>
-      <h3>${verificationlink}</h3>
-      <h3>Thank you for registering!</h3>
-    `
-    // Gọi tới provider gửi email
-    await await ResendProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
+    // // Gửi email cho người dùng xác thực
+    // const verificationlink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    // const customSubject = 'Trello: Please verify your email'
+    // const htmlContent = `
+    //   <h3>Here is your verification link:</h3>
+    //   <h3>${verificationlink}</h3>
+    //   <h3>Thank you for registering!</h3>
+    // `
+    // // Gọi tới provider gửi email
+    // await await ResendProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
 
     // Trả về kết quả cho controller
-    return pickUser(getNewUser)
+    // return pickUser(getNewUser)
+    return pickUser({
+      _id: createdUser.insertedId,
+      email: newUser.email,
+      displayName: newUser.displayName,
+      isActive: true
+    })
   } catch (error) {
     throw error
   }
