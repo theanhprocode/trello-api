@@ -12,14 +12,14 @@ const createNew = async (req, res, next) => {
   }
 }
 
-const verifyAccount = async (req, res, next) => {
-  try {
-    const result = await userService.verifyAccount(req.query)
-    res.status(StatusCodes.OK).json(result)
-  } catch (error) {
-    next(error)
-  }
-}
+// const verifyAccount = async (req, res, next) => {
+//   try {
+//     const result = await userService.verifyAccount(req.query)
+//     res.status(StatusCodes.OK).json(result)
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
 const login = async (req, res, next) => {
   try {
@@ -91,7 +91,7 @@ const update = async (req, res, next) => {
 
 export const userController = {
   createNew,
-  verifyAccount,
+  // verifyAccount,
   login,
   update,
   logout,

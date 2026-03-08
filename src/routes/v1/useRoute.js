@@ -12,8 +12,8 @@ Router.route('/register')
 Router.route('/login')
   .post(userValidation.login, userController.login)
 
-Router.route('/verify')
-  .get(userValidation.verifyAccount, userController.verifyAccount)
+// Router.route('/verify')
+//   .get(userValidation.verifyAccount, userController.verifyAccount)
 
 Router.route('/logout')
   .delete(userController.logout)
