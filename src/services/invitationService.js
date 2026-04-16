@@ -14,7 +14,7 @@ const createNewBoardInvitation = async (reqBody, inviterId) => {
     const inviter = await userModel.findOneById(inviterId)
     // Người được mời: tìm theo email từ FE
     const invitee = await userModel.findOneByEmail(reqBody.inviteeEmail)
-    // Tìm board để lấy data xử lý
+    // Tìm thông tin board mà người dùng muốn mời vào để lấy tên board, đồng thời kiểm tra board có tồn tại hay không
     const board = await boardModel.findOneById(reqBody.boardId)
 
     // Nếu không tìm thấy inviter, invitee hoặc board thì báo lỗi
