@@ -12,6 +12,7 @@ import cookieParser from 'cookie-parser'
 import socketIo from 'socket.io'
 import http from 'http'
 import { inviteUserToBoardSocket } from '~/sockets/inviteUserToBoardSocket'
+import { onlineUserSocket } from '~/sockets/onlineUserSocket'
 
 
 const START_SERVER = () => {
@@ -48,29 +49,10 @@ const START_SERVER = () => {
   const server = http.createServer(app)
   // Khởi tạo bien socket.io với server và cors
   const io = new socketIo.Server(server, { cors: corsOptions })
-  // Lưu danh sách user đang online: userId -> socketId
-  const onlineUsers = new Map()
-
   // Lắng nghe kết nối từ client
   io.on('connection', (socket) => {
     inviteUserToBoardSocket(io, socket)
-
-    // Khi user online, lưu vào Map và broadcast danh sách
-    socket.on('FE_USER_ONLINE', (userId) => {
-      onlineUsers.set(userId, socket.id)
-      io.emit('BE_USER_ONLINE_LIST', Array.from(onlineUsers.keys()))
-    })
-
-    // Khi user disconnect, xóa khỏi Map và broadcast lại
-    socket.on('disconnect', () => {
-      for (const [userId, socketId] of onlineUsers) {
-        if (socketId === socket.id) {
-          onlineUsers.delete(userId)
-          break
-        }
-      }
-      io.emit('BE_USER_ONLINE_LIST', Array.from(onlineUsers.keys()))
-    })
+    onlineUserSocket(io, socket)
   })
 
   if (env.BUILD_MODE === 'production') {
