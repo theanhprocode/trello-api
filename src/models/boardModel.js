@@ -162,7 +162,7 @@ const update = async (boardId, updateData) => {
   }
 }
 
-const getBoards = async (userId, page, itemPerPage) => {
+const getBoards = async (userId, page, itemPerPage, search) => {
   try {
     const queryCondition = [
       // Điều kiện 1: Boards chưa bị xoá
@@ -174,6 +174,13 @@ const getBoards = async (userId, page, itemPerPage) => {
         { ownerIds: { $all: [new ObjectId(userId)] } }
       ] }
     ]
+
+    if (search) {
+      const escapedSearch = search.toString().replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')
+      const titleRegex = { $regex: escapedSearch, $options: 'i' }
+
+      queryCondition.push({ title: titleRegex })
+    }
 
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
       [
