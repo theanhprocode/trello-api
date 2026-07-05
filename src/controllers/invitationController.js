@@ -37,8 +37,32 @@ const updateBoardInvitation = async (req, res, next) => {
   }
 }
 
+const deleteInvitation = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const { invitationId } = req.params
+    const result = await invitationService.deleteInvitation(userId, invitationId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const deleteManyInvitations = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const { invitationIds } = req.body
+    const result = await invitationService.deleteManyInvitations(userId, invitationIds)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const invitationController = {
   createNewBoardInvitation,
   getInvitations,
-  updateBoardInvitation
+  updateBoardInvitation,
+  deleteInvitation,
+  deleteManyInvitations
 }
