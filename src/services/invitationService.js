@@ -110,9 +110,55 @@ const updateBoardInvitation = async (userId, invitationId, status) => {
   } catch (error) { throw error }
 }
 
+const deleteInvitation = async (userId, invitationId) => {
+  try {
+    const invitation = await invitationModel.findOneById(invitationId)
+    if (!invitation) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Invitation not found')
+    }
+
+    if (invitation.inviteeId.toString() !== userId) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'You can not delete this notification')
+    }
+
+    const result = await invitationModel.deleteOneById(invitationId)
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+const deleteManyInvitations = async (userId, invitationIds) => {
+  try {
+    if (!Array.isArray(invitationIds) || invitationIds.length === 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'invitationIds is required')
+    }
+
+    // eslint-disable-next-line no-undef
+    const validIds = invitationIds.filter(id => ObjectId.isValid(id))
+    if (validIds.length === 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'No valid invitation IDs provided')
+    }
+
+    // Option 1: kiểm tra từng invitation trước khi xóa
+    const invitations = await Promise.all(validIds.map(id => invitationModel.findOneById(id)))
+    const invalidOwner = invitations.some(inv => inv && inv.inviteeId.toString() !== userId)
+    if (invalidOwner) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'You can not delete notifications that do not belong to you')
+    }
+
+    const result = await invitationModel.deleteManyByIds(validIds)
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const invitationService = {
   createNewBoardInvitation,
   getInvitations,
-  updateBoardInvitation
+  updateBoardInvitation,
+  deleteInvitation,
+  deleteManyInvitations
 }
 
